@@ -112,19 +112,27 @@ export const getStaticPaths: GetStaticPaths = async (ctx) => {
         paths: pokemonNames.map(name => ({
             params: { name}
         })),
-        fallback: false // false para que no me deje pasar a las page que no tengo precargadas
+        fallback: 'blocking' // false para que no me deje pasar a las page que no tengo precargadas
     }
 }
  
 export const getStaticProps: GetStaticProps = async ({params}) => {   //termina almacenado en el disco duro
     const {name} = params as {name: string}  
-                                 //tener cuidado si cada objeto por elemento es muy grande
 
-    
-    //enviar la data necesaria para evitar cargar datos innecesarios
+    const pokemon = await getPokemonInfo(name)
+
+    if(!pokemon){
+        return {
+            redirect: {
+                destination: "/",
+                permanent: false
+            }
+        }
+    }
+
     return {
       props: {  
-        pokemon: await getPokemonInfo(name)
+        pokemon
       }
     }
   }
